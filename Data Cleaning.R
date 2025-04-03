@@ -33,3 +33,10 @@ data$Weather.Index = ifelse(data$Weather=="CLEAR",1,
                   ifelse(data$Weather=="RAINING",3,
                   ifelse(data$Weather=="SNOW",4,5))))
 
+# convert InjurySeverity to binary indicator
+data$InjuryBinary = ifelse(data$Injury.Severity == "NO APPARENT INJURY", 0, 1)
+
+# convert column names to CamelCase
+colnames(data) <- c("SpeedLimit", "Weather", "SurfaceCondition",
+                    "CollisionType", "InjurySeverity", "WeatherIndex", "InjuryBinary")
+write.csv(data, "Cleaned_Crash_Data.csv", row.names = FALSE)

@@ -62,12 +62,30 @@ collision_scores <- data %>%
 data <- data %>%
   left_join(collision_scores, by = c("Collision.Type" = "Collision.Type"))
 
+#checking column names
+names(data)
+
 # convert column names to CamelCase
-colnames(data) <- c("SpeedLimit", "Weather", "SurfaceCondition",
-                    "CollisionType", "InjurySeverity", "WeatherIndex", 
-                    "InjuryBinary", "InjuryRate", "SurfaceStandard", "SurfaceIndex", "CollisionScore")
+data <- data %>%
+  rename(
+    SpeedLimit = Speed.Limit,
+    WeatherIndex = Weather.Index,
+    InjuryBinary = InjuryBinary,
+    SurfaceStandard = SurfaceStandard,
+    SurfaceIndex = SurfaceIndex,
+    InjurySeverity = Injury.Severity,
+    CollisionType = Collision.Type,
+    Weather = Weather,
+    SurfaceCondition = Surface.Condition,
+    CollisionScore = CollisionScore,
+    InjuryRate = InjuryRate
+  )
+
+#checking col names 
+names(data)
 
 write.csv(data, "Cleaned_Crash_Data.csv", row.names = FALSE)
 
 # Show the first 50 rows of cleaned data
 head(data, 50)
+

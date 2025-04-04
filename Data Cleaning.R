@@ -57,6 +57,8 @@ data$InjuryBinary = ifelse(data$Injury.Severity == "NO APPARENT INJURY", 0, 1)
 # check what values are in surface condition
 data %>% count(Surface.Condition)
 
+data = data %>% filter(!(Surface.Condition %in% c("","N/A")))
+
 data$SurfaceStandard <- case_when(
   str_detect(toupper(data$Surface.Condition), "DRY") ~ "DRY",
   str_detect(toupper(data$Surface.Condition), "WET|WATER") ~ "WET",
@@ -77,7 +79,7 @@ data %>% count(Collision.Type)
 
 # remove insignificant values
 data = data %>%
-  filter(!(Collision.Type %in% c("N/A", "OTHER", "UNKNOWN")))
+  filter(!(Collision.Type %in% c("N/A", "UNKNOWN")))
 
 # make a mini data frame with injury rate per collision type
 collision_scores <- data %>%

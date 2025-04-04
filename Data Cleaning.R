@@ -41,10 +41,6 @@ data$Weather.Index = ifelse(data$Weather=="CLEAR",1,
                   ifelse(data$Weather=="RAIN",3,
                   ifelse(data$Weather=="SNOW",4,5))))
 
-# remove other weather values
-data = data %>% filter(Weather.Index != 5)
-nrow(data)
-
 
 # check what values are in injury severity
 data %>% count(Injury.Severity)
@@ -74,9 +70,6 @@ data$SurfaceIndex = ifelse(data$SurfaceStandard == "DRY", 1,
                            ifelse(data$SurfaceStandard == "WET", 2,
                                   ifelse(data$SurfaceStandard == "ICE", 3,
                                          ifelse(data$SurfaceStandard == "SNOW", 4, 5))))
-
-# remove rows with other surface condition values
-data = data %>% filter(SurfaceIndex != 5)
 
 
 # check what values are in collision type

@@ -1,5 +1,3 @@
-# TODO: encode variables as binary variables
-
 # libraries
 library(tidyverse)
 
@@ -33,7 +31,8 @@ data %>% count(Weather)
 # ensure similar values have the same value
 data = data %>%
   mutate(Weather = str_replace(Weather, "RAINING", "RAIN"), 
-         Weather = str_replace(Weather, "BLOWING SNOW", "SNOW"))
+         Weather = str_replace(Weather, "BLOWING SNOW", "SNOW")) %>%
+  filter(Weather != "N/A")
 
 # make ordinal index for Weather attribute
 data$Weather.Index = ifelse(data$Weather=="CLEAR",1,

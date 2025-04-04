@@ -4,15 +4,15 @@
 library(tidyverse)
 
 # read in data
-data = read.csv(file.choose())
+raw = read.csv(file.choose())
 
 # check data
-head(data)
-nrow(data)
-ncol(data)
+head(raw)
+nrow(raw)
+ncol(raw)
 
 # select columns we need
-data = data %>% select(Speed.Limit,Weather,Surface.Condition,
+data = raw %>% select(Speed.Limit,Weather,Surface.Condition,
                              Collision.Type,Injury.Severity)
 
 head(data)
@@ -22,20 +22,44 @@ ncol(data)
 data = na.omit(data)
 nrow(data) # no NA rows
 
-# remove unknown data
-data = data[data$Weather != "N/A" 
-            & data$Surface.Condition != "N/A" 
-            & data$Collision.Type != "OTHER",]
-nrow(data)
+# make all characters upper case
+data = data %>%
+  mutate(across(where(is.character), toupper))
+
+
+# check what values are in Weather
+data %>% count(Weather)
+
+# ensure similar values have the same value
+data = data %>%
+  mutate(Weather = str_replace(Weather, "RAINING", "RAIN"), 
+         Weather = str_replace(Weather, "BLOWING SNOW", "SNOW"))
 
 # make ordinal index for Weather attribute
 data$Weather.Index = ifelse(data$Weather=="CLEAR",1,
                   ifelse(data$Weather=="CLOUDY",2,
-                  ifelse(data$Weather=="RAINING",3,
+                  ifelse(data$Weather=="RAIN",3,
                   ifelse(data$Weather=="SNOW",4,5))))
+
+# remove other weather values
+data = data %>% filter(Weather.Index != 5)
+nrow(data)
+
+
+# check what values are in injury severity
+data %>% count(Injury.Severity)
+
+# remove empty rows
+data = data %>%
+  filter(Injury.Severity != "")
+nrow(data)
 
 #convert InjurySeverity to binary indicator
 data$InjuryBinary = ifelse(data$Injury.Severity == "NO APPARENT INJURY", 0, 1)
+
+
+# check what values are in surface condition
+data %>% count(Surface.Condition)
 
 data$SurfaceStandard <- case_when(
   str_detect(toupper(data$Surface.Condition), "DRY") ~ "DRY",
@@ -51,6 +75,17 @@ data$SurfaceIndex = ifelse(data$SurfaceStandard == "DRY", 1,
                                   ifelse(data$SurfaceStandard == "ICE", 3,
                                          ifelse(data$SurfaceStandard == "SNOW", 4, 5))))
 
+# remove rows with other surface condition values
+data = data %>% filter(SurfaceIndex != 5)
+
+
+# check what values are in collision type
+data %>% count(Collision.Type)
+
+# remove insignificant values
+data = data %>%
+  filter(!(Collision.Type %in% c("N/A", "OTHER", "UNKNOWN")))
+
 # make a mini data frame with injury rate per collision type
 collision_scores <- data %>%
   group_by(Collision.Type) %>%
@@ -58,11 +93,13 @@ collision_scores <- data %>%
   arrange(InjuryRate) %>%
   mutate(CollisionScore = round(seq(1.0, by = 0.1, length.out = n()), 1))
 
+collision_scores
+
 # add the injury rate scores back to the main dataset
 data <- data %>%
   left_join(collision_scores, by = c("Collision.Type" = "Collision.Type"))
 
-#checking column names
+# checking column names
 names(data)
 
 # convert column names to CamelCase

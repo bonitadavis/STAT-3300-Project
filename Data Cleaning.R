@@ -69,8 +69,8 @@ data$SurfaceStandard <- case_when(
 # use SurfaceStandard to assign ordinal SurfaceIndex
 data$SurfaceIndex = ifelse(data$SurfaceStandard == "DRY", 1,
                            ifelse(data$SurfaceStandard == "WET", 2,
-                                  ifelse(data$SurfaceStandard == "ICE", 3,
-                                         ifelse(data$SurfaceStandard == "SNOW", 4, 5))))
+                                  ifelse(data$SurfaceStandard == "SNOW", 3,
+                                         ifelse(data$SurfaceStandard == "ICE", 4, 5))))
 
 
 # check what values are in collision type

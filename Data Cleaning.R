@@ -80,18 +80,15 @@ data %>% count(Collision.Type)
 data = data %>%
   filter(!(Collision.Type %in% c("N/A", "UNKNOWN")))
 
-# make a mini data frame with injury rate per collision type
-collision_scores <- data %>%
-  group_by(Collision.Type) %>%
-  summarise(InjuryRate = mean(InjuryBinary), .groups = "drop") %>%
-  arrange(InjuryRate) %>%
-  mutate(CollisionScore = round(seq(1.0, by = 0.1, length.out = n()), 1))
+# list of dangerous collision types
+dangerous <- c(
+  "HEAD ON", "FRONT TO FRONT", "HEAD ON LEFT TURN",
+  "ANGLE", "STRAIGHT MOVEMENT ANGLE", "ANGLE MEETS LEFT TURN", 
+  "ANGLE MEETS RIGHT TURN", "ANGLE MEETS LEFT HEAD ON",
+  "REAR TO SIDE", "SAME DIR REND LEFT TURN", "SAME DIR REND RIGHT TURN"
+)
 
-collision_scores
-
-# add the injury rate scores back to the main dataset
-data <- data %>%
-  left_join(collision_scores, by = c("Collision.Type" = "Collision.Type"))
+data$CollisionSeverity <- ifelse(data$Collision.Type %in% dangerous, 1, 0)
 
 # checking column names
 names(data)
@@ -108,8 +105,7 @@ data <- data %>%
     CollisionType = Collision.Type,
     Weather = Weather,
     SurfaceCondition = Surface.Condition,
-    CollisionScore = CollisionScore,
-    InjuryRate = InjuryRate
+    CollisionSeverity = CollisionSeverity
   )
 
 #checking col names 
@@ -119,4 +115,3 @@ write.csv(data, "Cleaned_Crash_Data.csv", row.names = FALSE)
 
 # Show the first 50 rows of cleaned data
 head(data, 50)
-
